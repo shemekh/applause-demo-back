@@ -16,13 +16,10 @@ import java.util.stream.Collectors;
 public class DemoService {
     private final TesterRepository testerRepository;
     private final DeviceRepository deviceRepository;
-    private final BugRepository bugRepository;
 
-    public DemoService(TesterRepository testerRepository, DeviceRepository deviceRepository,
-                       BugRepository bugRepository) {
+    public DemoService(TesterRepository testerRepository, DeviceRepository deviceRepository) {
         this.testerRepository = testerRepository;
         this.deviceRepository = deviceRepository;
-        this.bugRepository = bugRepository;
     }
 
     public List<String> getAllCountries() {
