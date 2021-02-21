@@ -33,30 +33,30 @@ public class DemoService {
         return (List<Device>) deviceRepository.findAll();
     }
 
-    public List<TesterExpDTO> getFilteredTesters(Optional<List<String>> countries, Optional<List<Long>> deviceIds) {
+    public List<TesterExpDTO> getFilteredTesters(List<String> countries, List<Long> deviceIds) {
         List<Tester> testers;
-        switch (TesterFilterCriteria.valueOf(countries.isPresent(), deviceIds.isPresent())) {
+        switch (TesterFilterCriteria.valueOf(!countries.isEmpty(), !deviceIds.isEmpty())) {
             case BOTH:
-                testers = testerRepository.findDistinctByCountryInAndDevices_IdIn(countries.get(), deviceIds.get());
+                testers = testerRepository.findDistinctByCountryInAndDevices_IdIn(countries, deviceIds);
                 break;
             case COUNTRY:
-                testers = testerRepository.findDistinctByCountryIn(countries.get());
+                testers = testerRepository.findDistinctByCountryIn(countries);
                 break;
             case DEVICE:
-                testers = testerRepository.findDistinctByDevices_IdIn(deviceIds.get());
+                testers = testerRepository.findDistinctByDevices_IdIn(deviceIds);
                 break;
             case NONE:
             default:
-                testers = Collections.emptyList();
+                testers = (List<Tester>) testerRepository.findAll();
                 break;
         }
-
-        return createTesterExpDTOs(testers, deviceIds.orElse(Collections.emptyList()));
+        return createTesterExpDTOs(testers, deviceIds);
     }
 
     private List<TesterExpDTO> createTesterExpDTOs(List<Tester> testers, List<Long> deviceIds) {
         return testers.stream()
                 .map(tester -> new TesterExpDTO(tester.getFirstName(), tester.getLastName(), getTesterExp(tester, deviceIds)))
+                .sorted(Comparator.comparingInt(TesterExpDTO::getExp).reversed())
                 .collect(Collectors.toList());
     }
 
